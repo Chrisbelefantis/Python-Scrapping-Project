@@ -1,5 +1,6 @@
 import xlrd
 import sqlite3
+import pandas
 
 
 class Database:
@@ -32,6 +33,11 @@ class Database:
         except sqlite3.DatabaseError as e:
 
             print("Error: %s" % (e.args))
+
+    def export_csv(self, table_name, path):
+        table = pandas.read_sql_query(
+            'select * from '+table_name+'', self.conn)
+        table.to_csv(path, index=False)
 
     def query(self, string):
         self.c.execute(string)
@@ -79,13 +85,9 @@ def add_year_arrivals(year, database):
 db = Database()
 db.create_arrivals_table()
 
+# Βάλε να βρίσκει ποιες χρονολογίες έχω στο data.
 for year in range(2011, 2016):
     add_year_arrivals(year, db)
 
 
-x = db.query("select * from touristsArrivals")
-
-for i in x:
-    print(i)
-
-print("Finished!")
+db.export_csv('touristsArrivals', 'touristsArrivals.csv')
