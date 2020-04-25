@@ -22,7 +22,12 @@ class Database:
         self.conn.commit()
 
     def create_countries_table(self):
-        pass
+        self.c.execute("CREATE TABLE countries(\
+                         Name TEXT,\
+                         Year INTEGER,\
+                         Arrivals INTEGER\
+                                        ) ")
+        self.conn.commit()
 
     def add_arrival_row(self, year, quarter, sums):
         try:
@@ -30,6 +35,17 @@ class Database:
             self.c.execute("INSERT INTO touristsArrivals\
                             VALUES(?,?, ?, ?, ?, ?, ?)", (year, quarter, sums[0], sums[1], sums[2], sums[3], sums[4]))
             self.conn.commit()
+        except sqlite3.DatabaseError as e:
+
+            print("Error: %s" % (e.args))
+
+    def add_country_row(self, name, year, arrivals):
+        try:
+
+            self.c.execute("INSERT INTO countries\
+                            VALUES(?,?, ?)", (name, year, arrivals))
+            self.conn.commit()
+
         except sqlite3.DatabaseError as e:
 
             print("Error: %s" % (e.args))
@@ -82,12 +98,47 @@ def add_year_arrivals(year, database):
             quarter += 1
 
 
-db = Database()
-db.create_arrivals_table()
+def add_countries(year, db):
 
-# Βάλε να βρίσκει ποιες χρονολογίες έχω στο data.
-for year in range(2011, 2016):
-    add_year_arrivals(year, db)
+    file_location = "data/"+str(year)+".xls"
+    workbook = xlrd.open_workbook(file_location)
+    sheet = workbook.sheet_by_index(11)
+
+    illegal_fields = ['', 'Μη προσδιορίσιμες χώρες ταξιδιωτών', 'Λοιπά Κράτη Ευρώπης',
+                      'Λοιπά κράτη Ασίας', 'Λοιπά κράτη Αφρικής', 'Λοιπά κράτη Αμερικής', 'Λοιπά κράτη Ωκεανίας']
+
+    counter = 0
+    i = 0
+    while counter < 2:
+        i += 1
+        if sheet.cell_value(i, 6) == 'ΣΥΝΟΛΟ':
+            counter += 1
+    start_index = i+3
+
+    pointer = ''
+    index = start_index
+
+    while pointer != 'ΓΕΝΙΚΟ ΣΥΝΟΛΟ':
+
+        current_value = sheet.cell_value(index, 6)
+        current_country = sheet.cell_value(index, 1)
+
+        if current_country not in illegal_fields:
+            db.add_country_row(current_country, year, int(current_value))
+
+        index += 1
+        pointer = sheet.cell_value(index, 1)
 
 
-db.export_csv('touristsArrivals', 'touristsArrivals.csv')
+if __name__ == "__main__":
+    db = Database()
+    db.create_arrivals_table()
+    db.create_countries_table()
+
+    # Βάλε να βρίσκει ποιες χρονολογίες έχω στο data.
+    for year in range(2010, 2015):
+        add_year_arrivals(year, db)
+        add_countries(year, db)
+
+    db.export_csv('touristsArrivals', 'touristsArrivals.csv')
+    db.export_csv('countries', 'countries.csv')

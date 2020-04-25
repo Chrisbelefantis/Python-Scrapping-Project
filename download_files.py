@@ -37,23 +37,23 @@ def save_file(path, url):
     open(path, 'wb').write(r.content)
 
 
-print('Beginning of the program...')
+if __name__ == "__main__":
 
+    print('Beginning of the program...')
 
-range_str = "2011-2015"
-years = range_str.split("-")
+    range_str = "2010-2014"
+    years = range_str.split("-")
 
-# Deletes everything from the data folder
-files = glob.glob(
-    'C:\\Users\\Ηλιάνα\\Desktop\\Current Projects\\Python Project\\data\\*')
-for f in files:
-    os.remove(f)
+    # Deletes everything from the data folder
+    files = glob.glob(
+        'C:\\Users\\Ηλιάνα\\Desktop\\Current Projects\\Python Project\\data\\*')
+    for f in files:
+        os.remove(f)
 
+    for year in range(int(years[0]), int(years[1])+1):
 
-for year in range(int(years[0]), int(years[1])+1):
+        id = str(year)+'-Q' + '4'
 
-    id = str(year)+'-Q' + '4'
-
-    url = find_file_url(id)
-    if url != None:
-        save_file(path='data\\'+str(year)+'.xls', url=url)
+        url = find_file_url(id)
+        if url != None:
+            save_file(path='data\\'+str(year)+'.xls', url=url)
