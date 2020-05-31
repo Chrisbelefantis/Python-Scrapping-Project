@@ -57,8 +57,17 @@ for year in range(int(years[0]), int(years[1])+1):
     add_year_arrivals(year, db)
     add_countries(year, db)
 
-db.export_csv('touristsArrivals', 'touristsArrivals.csv')
-db.export_csv('countries', 'countries.csv')
+
+if os.path.exists('csv'):
+    files = glob.glob('csv\\*')
+    for f in files:
+        os.remove(f)
+else:
+    os.mkdir('csv')
+
+
+db.export_csv('touristsArrivals', 'csv\\touristsArrivals.csv')
+db.export_csv('countries', 'csv\\countries.csv')
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -77,12 +86,13 @@ while choice != 4:
     choice = int(choice)
 
     if choice == 1:
-        plot_tourists_arrivals("touristsArrivals.csv")
+        plot_tourists_arrivals("csv\\touristsArrivals.csv")
     elif choice == 2:
-        plot_arrivals_by_mean_of_transport("touristsArrivals.csv")
+        plot_arrivals_by_mean_of_transport("csv\\touristsArrivals.csv")
     elif choice == 3:
-        plot_arrivals_by_country("countries.csv")
-    else:
+
+        plot_arrivals_by_country("csv\\countries.csv", years)
+    elif choice != 4:
         print("Invalid input")
 
     print("\n")

@@ -1,1 +1,0 @@
-plot_tourists_arrivals("touristsArrivals.csv")

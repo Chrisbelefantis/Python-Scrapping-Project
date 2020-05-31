@@ -3,6 +3,21 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker
 
 
+dictionary = {
+
+    "Γερμανία": "Germany",
+    "Ην. Βασίλειο": "United Kindom",
+    "Γαλλία": "France",
+    "Ρωσία": "Russia",
+    "Ιταλία": "Italy",
+    "Βουλγαρία": "Bulgary",
+    "Τουρκία": "Turkey",
+    "Ολλανδία": "Netherlands",
+    "Σερβία": "Serbia"
+
+}
+
+
 def plot_tourists_arrivals(csv_path):
     '''
     This functions plots two graphs in the same 
@@ -46,7 +61,8 @@ def plot_tourists_arrivals(csv_path):
 
     ax2.plot(years_quarter, sums_per_quarter, marker='.')
 
-    formatter_y = matplotlib.ticker.StrMethodFormatter('{x:,.0f}')
+    ax2.xaxis.set_major_locator(locator)
+    ax2.xaxis.set_major_formatter(formatter_x)
     ax2.yaxis.set_major_formatter(formatter_y)
 
     ax2.set_xlabel('Year')
@@ -54,12 +70,13 @@ def plot_tourists_arrivals(csv_path):
     ax2.set_title('Tourists Arrivals per Quarter of the Year')
 
 #~~~~~~~~~~~~~~~~~~~~~Displaying~~~~~~~~~~~~~~~~~~~~~~~~~#
+    fig.set_size_inches(8.5, 6)
     plt.style.use('seaborn')
     plt.tight_layout()
     plt.show()
 
 
-def plot_arrivals_by_country(csv_path):
+def plot_arrivals_by_country(csv_path, period):
 
     df = pd.read_csv(csv_path)
     df_grp = df.groupby(['Name']).sum()
@@ -67,13 +84,19 @@ def plot_arrivals_by_country(csv_path):
     countries = df_grp_sort.index.values
     arrivals = df_grp_sort['Arrivals']
 
+    # Translate the country names to English
+    for i in range(9):
+        if countries[i] in dictionary.keys():
+            countries[i] = dictionary.get(countries[i])
+
     fig, ax = plt.subplots()
-    fig.set_size_inches(8.5, 5)
+    fig.set_size_inches(9, 6)
     ax.bar(countries[0:8], arrivals[0:8], width=0.5, align='center')
 
     ax.set_xlabel('Countries')
     ax.set_ylabel('Arrivals')
-    ax.set_title('Arrivals by Country')
+    ax.set_title(
+        'Arrivals by Country ('+str(period[0])+' - '+str(period[1])+')')
 
     formatter_y = matplotlib.ticker.StrMethodFormatter('{x:,.0f}')
     ax.yaxis.set_major_formatter(formatter_y)
@@ -120,6 +143,9 @@ def plot_arrivals_by_mean_of_transport(csv_path):
     plt.show()
 
 
-# plot_arrivals_by_mean_of_transport("touristsArrivals.csv")
-# plot_tourists_arrivals("touristsArrivals.csv")
-# plot_arrivals_by_country("countries.csv")
+if __name__ == "__main__":
+    # plot_arrivals_by_mean_of_transport("touristsArrivals.csv")
+    # plot_tourists_arrivals(
+    #     r"C:\\Users\Ηλιάνα\Desktop\\Current Projects\\Python Project\\csv\\touristsArrivals.csv")
+    plot_arrivals_by_country(
+        r"C:\\Users\Ηλιάνα\Desktop\\Current Projects\\Python Project\\csv\\countries.csv", [2011, 2014])

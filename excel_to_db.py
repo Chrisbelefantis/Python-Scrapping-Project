@@ -55,10 +55,6 @@ class Database:
             'select * from '+table_name+'', self.conn)
         table.to_csv(path, index=False)
 
-    def query(self, string):
-        self.c.execute(string)
-        return self.c.fetchall()
-
 
 def add_year_arrivals(year, database):
     '''
@@ -109,6 +105,9 @@ def add_countries(year, db):
 
     counter = 0
     i = 0
+
+    # We are placing the start index at the beggining of the
+    # second table.
     while counter < 2:
         i += 1
         if sheet.cell_value(i, 6) == 'ΣΥΝΟΛΟ':
@@ -117,12 +116,12 @@ def add_countries(year, db):
 
     pointer = ''
     index = start_index
-
     while pointer != 'ΓΕΝΙΚΟ ΣΥΝΟΛΟ':
 
         current_value = sheet.cell_value(index, 6)
         current_country = sheet.cell_value(index, 1)
 
+        # Adding this country to the database
         if current_country not in illegal_fields:
             db.add_country_row(current_country, year, int(current_value))
 
@@ -135,7 +134,6 @@ if __name__ == "__main__":
     db.create_arrivals_table()
     db.create_countries_table()
 
-    # Βάλε να βρίσκει ποιες χρονολογίες έχω στο data.
     for year in range(2010, 2015):
         add_year_arrivals(year, db)
         add_countries(year, db)
